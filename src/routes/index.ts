@@ -1,9 +1,10 @@
 import { Request, Response, Router } from 'express';
 import { Application } from 'express';
-import Route from './Route';
+import userRoute from './user.route';
+import postRoute from './post.route';
 export default class Routes {
     constructor(app: Application) {
-      // course reoutes
-      app.use('/', Route);
+        app.use('/', userRoute);
+        app.use('/', postRoute);
     }
-  }
+}
