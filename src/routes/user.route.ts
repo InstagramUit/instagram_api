@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import UserController from '../controllers/userController';
-import { verifyId } from '../middlewares/auth';
+import { verifyToken } from '../middlewares/auth';
 class UserRoutes {
     router = Router();
     userController = new UserController()
@@ -15,9 +15,16 @@ class UserRoutes {
         this.router.route('/sign-up')
             .post(this.userController.signUp);
         this.router.route('/users')
-            .put(verifyId,this.userController.updateInfoUser);
+            .put(verifyToken, this.userController.updateInfoUser);
+        this.router.route('/users')
+            .get(verifyToken, this.userController.getInfoUser);
         this.router.route('/users/forgot-password')
-            .put(verifyId,this.userController.forgotPassword);
+            .put(verifyToken, this.userController.forgotPassword);
+        this.router.route('/users/auto-suggest')
+            .get(verifyToken, this.userController.autoSuggest);
+        this.router.route('/users/follow')
+            .post(verifyToken, this.userController.createFollow);
+
 
     }
 }

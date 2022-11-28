@@ -1,21 +1,20 @@
 import { Request, Response, NextFunction } from 'express';
 import UserModel from '../models/user.model';
+import { Secret, verify } from 'jsonwebtoken'
 
-
-export function verifyId(req: Request, res: Response, next: NextFunction) {
-    let idUser = req.header('id')
-    if (!idUser) {
-        res.status(401).json({ status: 401, message: 'Unauthorized' });
-    }
+export async function verifyToken(req: Request, res: Response, next: NextFunction) {
+    let token = req.header('Authorization')
+    let accessToken = token.split(' ')[1]
+    const decodeUser = verify(accessToken, 'sdgjhsdflgjslfgjksfkwpeijwe23')
+    console.log(decodeUser);
     const userModel = new UserModel();
-    userModel.findUserById(idUser)
-        .then((respond) => {
-            if (respond) {
-                req['id'] = idUser;
-                next();
-            } else {
-                res.status(401).json({ status: 401, message: 'Unauthorized' });
-            }
+    const user = await userModel.findUserById(decodeUser.userId)
+    if (!user) {
+        return res.status(401).json({
+            success: false,
+            message: 'User not found',
         })
-
+    }
+    req.user = user
+    return next()
 }

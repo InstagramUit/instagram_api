@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import PostController from '../controllers/postController';
-import { verifyId } from '../middlewares/auth';
+import { verifyToken } from '../middlewares/auth';
 
 class PostRoutes {
     router = Router();
@@ -10,7 +10,9 @@ class PostRoutes {
     }
     intializeRoutes() {
         this.router.route('/posts')
-            .post(this.postController.createPost);
+            .post(verifyToken, this.postController.createPost);
+        this.router.route('/posts')
+            .get(verifyToken, this.postController.showPost);
 
     }
 }

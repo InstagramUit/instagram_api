@@ -10,7 +10,7 @@ export default class PostModel {
                 return response[0];
             });
     }
-    createNewPost(data: { user_id: number, items: string, title: string, description: string }) {
+    createNewPost(data: { user_id: number, items: string, description: string }) {
         return db('post')
             .insert(data)
             .then((response) => {
