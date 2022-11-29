@@ -6,9 +6,8 @@ export async function verifyToken(req: Request, res: Response, next: NextFunctio
     let token = req.header('Authorization')
     let accessToken = token.split(' ')[1]
     const decodeUser = verify(accessToken, 'sdgjhsdflgjslfgjksfkwpeijwe23')
-    console.log(decodeUser);
     const userModel = new UserModel();
-    const user = await userModel.findUserById(decodeUser.userId)
+    const user = await userModel.findUserById(decodeUser.id)
     if (!user) {
         return res.status(401).json({
             success: false,

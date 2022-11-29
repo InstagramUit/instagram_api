@@ -18,11 +18,10 @@ export default class PostController {
                 formatItems.push(addItem(item.src, `/posts/${1}`, item.type))
             }
             let result = await Promise.all(formatItems)
-            console.log(result);
             let data = {
-                user_id: Number(user.id),
+                id_user: user.id,
                 items: JSON.stringify(result),
-                description,
+                description: 'Niềm mơ ước của bao người ',
             }
             await postModel.createNewPost(data)
             res.json({ message: 'success' })
@@ -32,17 +31,50 @@ export default class PostController {
         }
     }
     async showPost(req: Request, res: any, next: NextFunction) {
-        const { user } = req;
-        const { oldPosts } = req.body;
-        const postsFollowing = await followModel.findPostsFollowing(user.id)
-        postsFollowing.filter(post => {
-            return oldPosts.every(oldPost => oldPost.id !== post.id)
-        })
-        return res.json({
-            data: {
-                posts: postsFollowing
+        try {
+            const { user } = req;
+            let { oldPosts = [] } = req.body;
+            let postsFollowing = await followModel.findPostsFollowing(user.id)
+            let formatPosts = []
+            for (let post of postsFollowing) {
+                if (oldPosts.every(oldPost => oldPost.id !== post.id)) {
+                    let comments = await postModel.findComments(post.id)
+                    let likes = await postModel.findLikes(post.id)
+                    formatPosts.push({
+                        ...post,
+                        comments,
+                        likes,
+                        follow: true,
+                        items: JSON.parse(post.items),
+                        totalComments: comments.length,
+                        totalLikes: likes.length,
+                    })
+                }
             }
-        })
+            let result = await Promise.all(formatPosts)
+            return res.json({
+                data: {
+                    posts: result
+                }
+            })
+        } catch (error) {
+            console.log(error);
+            res.status(400).json({ message: 'khong lay duoc post .' })
+        }
+    }
+    async setLikePost(req: Request, res: any, next: NextFunction) {
+        try {
+            const { user } = req
+            const { id_post } = req.params
+            const { isLike } = req.body
+
+            let result = await postModel.setLikePost(user.id, Number(id_post), isLike)
+            console.log(result);
+            res.json({ message: 'thay doi like thanh cong.' })
+        } catch (error) {
+            console.log(error);
+            next()
+        }
     }
 
 }

@@ -12,7 +12,7 @@ const createToken = (user: any, type: 'accessToken' | 'refreshToken' = 'accessTo
     const expiresIn = '1d'
 
     const payload = {
-        userId: user.id,
+        id: user.id,
     }
     return sign(payload, tokenSecret as Secret, { expiresIn })
 }
@@ -24,19 +24,27 @@ export default class UserController {
     }
     async login(req: Request, res: any, next: NextFunction) {
         const { email, password } = req.body
+        console.log(req.body);
+
         if (!email || !password) {
-            return res.status(400).json({ mess: 'incorrect data' })
+            return res.status(401).json({ mess: 'incorrect data' })
         }
-        let infoUser = await userModel.findUser({ email })
+        let infoUser = await userModel.findUser(email)
         if (!infoUser) {
             return res.status(404).json({ mess: 'notFound data' })
         }
-        const isPasswordMatch = argon2.verify(`${infoUser.password}`, password)
+        const isPasswordMatch = await argon2.verify(`${infoUser.password}`, password)
+        console.log(isPasswordMatch);
         if (!isPasswordMatch) {
-            return res.status(400).json({ mess: 'password wrong.' })
+            return res.status(401).json({ mess: 'password wrong.' })
         }
         const accessToken = createToken(infoUser)
-        return res.status(200).json({ accessToken })
+        return res.status(200).json({
+            user: {
+                accessToken,
+                ...infoUser,
+            }
+        })
     }
     async signUp(req: Request, res: any, next: NextFunction) {
         try {
@@ -54,9 +62,15 @@ export default class UserController {
                 display_name,
                 email
             }
-            await userModel.createNewUser(user)
+            let id_user = await userModel.createNewUser(user)
             const accessToken = createToken(user)
-            return res.status(200).json({ accessToken })
+            return res.status(200).json({
+                user: {
+                    accessToken,
+                    ...user,
+                    id: id_user,
+                }
+            })
         } catch (error) {
             console.log(error);
             res.status(400).json({ message: 'dang ki that bai' })
@@ -100,14 +114,25 @@ export default class UserController {
 
     }
     async autoSuggest(req: Request, res: any, next: NextFunction) {
-        const { user } = req
-        const suggestUsers = await userModel.getSuggestUser(user.id)
-        res.json({ data: suggestUsers })
+        try {
+            const { user } = req
+            const suggestUsers = await userModel.getSuggestUser(user.id)
+            res.json({ data: suggestUsers })
+        } catch (error) {
+            console.log(error);
+            res.status(400).json({ message: 'co loi xay ra' })
+        }
     }
     async createFollow(req: Request, res: any, next: NextFunction) {
         try {
             const { user } = req
             const { followUsers } = req.body
+            // const  followUsers  = [
+            //     {
+            //         follow:true,
+            //         id:3,
+            //     }
+            // ]
             if (!Array.isArray(followUsers)) {
                 res.status(400).json({ message: 'sai dinh dang.' })
             }

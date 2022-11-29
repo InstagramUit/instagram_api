@@ -5,9 +5,9 @@ import mysql from 'mysql2/promise';
 
 let pool = mysql.createPool(config.db);
 export default class UserModel {
-    findUser(data: { email: string }) {
+    findUser(email: string ) {
         return db('user')
-            .where('email', data.email)
+            .where('email', email)
             .then((response) => {
                 if (response.length == 0) return null;
                 return response[0];
@@ -18,7 +18,7 @@ export default class UserModel {
             .where('id', id)
             .then((response) => {
                 if (response.length == 0) return null;
-                return response;
+                return response[0];
             });
     }
     checkExistUser(email: string) {
@@ -54,8 +54,10 @@ export default class UserModel {
     getSuggestUser(user_id: number) {
         return db('user')
             .select('id', 'email', 'display_name', 'avatar')
-            .whereNot('id', user_id)
+            .where('id', user_id)
             .then((response) => {
+                if (!response)
+                    return null
                 return response;
             });
     }

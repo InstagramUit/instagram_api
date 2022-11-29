@@ -47,7 +47,7 @@ class Server {
 
             .use(helmet())
             .use(compression())
-            .use(cors())
+            .use(cors({ origin: true, credentials: true, exposedHeaders: ['Set-Cookie', 'Date', 'ETag'] }))
             .use(limiter)
             .use(session({
                 resave: true,

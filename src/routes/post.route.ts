@@ -13,6 +13,8 @@ class PostRoutes {
             .post(verifyToken, this.postController.createPost);
         this.router.route('/posts')
             .get(verifyToken, this.postController.showPost);
+        this.router.route('/posts/like/:id_post')
+            .put(verifyToken, this.postController.setLikePost);
 
     }
 }
