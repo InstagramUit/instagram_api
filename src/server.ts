@@ -7,7 +7,6 @@ import compression from 'compression';
 import cors from 'cors';
 import Routes from './routes';
 import rateLimit from 'express-rate-limit';
-import session from 'express-session';
 
 let DOMAINS = [];
 const limiter = rateLimit({
@@ -30,7 +29,6 @@ declare global {
 // Server Class
 class Server {
     public app: Application;
-    public io;
     constructor() {
         this.app = express();
         this.app.use(express.static(__dirname + '/assets'));
@@ -49,12 +47,6 @@ class Server {
             .use(compression())
             .use(cors({ origin: true, credentials: true, exposedHeaders: ['Set-Cookie', 'Date', 'ETag'] }))
             .use(limiter)
-            .use(session({
-                resave: true,
-                saveUninitialized: true,
-                secret: '123456789',
-                cookie: { maxAge: 120000 }
-            }))
             .use(express.json({ limit: '100mb' }))
             .use(express.urlencoded({ limit: '100mb', extended: false }));
     }
@@ -79,5 +71,4 @@ class Server {
         });
     }
 }
-
 export { Server };
