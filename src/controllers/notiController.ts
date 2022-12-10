@@ -16,8 +16,20 @@ export default class NotiController {
       for (let post of posts) {
         let notiComments = await notiModel.getNotificationPost(post.id, "comment");
         let notiLikes = await notiModel.getNotificationPost(post.id, "like");
-        arrNotiComment.push(...notiComments.map((comment) => ({ ...comment, type: "comment" })));
-        arrNotiLike.push(...notiLikes.map((like) => ({ ...like, type: "like" })));
+        arrNotiComment.push(
+          ...notiComments.map((comment) => ({
+            ...comment,
+            type: "comment",
+            items: findFirstImageInItems(JSON.parse(comment.items)),
+          }))
+        );
+        arrNotiLike.push(
+          ...notiLikes.map((like) => ({
+            ...like,
+            type: "like",
+            items: findFirstImageInItems(JSON.parse(like.items)),
+          }))
+        );
       }
       let result = await Promise.all([...arrNotiComment, ...arrNotiLike]);
       // sort created_at
@@ -30,4 +42,7 @@ export default class NotiController {
       next();
     }
   }
+}
+function findFirstImageInItems(items){
+  return items.find(item=> item.type=='image').src
 }
