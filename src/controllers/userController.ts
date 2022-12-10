@@ -24,7 +24,7 @@ export default class UserController {
     }
     async login(req: Request, res: any, next: NextFunction) {
         const { email, password } = req.body
-        console.log(req.body);
+        console.log({ email, password });
 
         if (!email || !password) {
             return res.status(401).json({ mess: 'incorrect data' })

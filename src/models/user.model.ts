@@ -13,7 +13,7 @@ export default class UserModel {
                 return response[0];
             });
     }
-    findUserById(id) {
+    findUserById(id:any) {
         return db('user')
             .where('id', id)
             .then((response) => {

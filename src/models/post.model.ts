@@ -1,21 +1,20 @@
 import db from '../utils/dbUtil';
 
 export default class PostModel {
-    findUser(data: { email: string, password: string }) {
-        return db('user')
-            .where('email', data.email)
-            .where('password', data.password)
-            .then((response) => {
-                if (response.length == 0) return null;
-                return response[0];
-            });
-    }
     createNewPost(data: { id_user: number, items: string, description: string }) {
         return db('post')
             .insert(data)
             .then((response) => {
                 return response;
             });
+    }
+    getPost(user_id:number){
+        return db('post')
+        .where('id_user',user_id)
+        .then(response=>{
+            if(!response) return [];
+            return response
+        })
     }
     findComments(id_post: number) {
         return db('comment_post')
