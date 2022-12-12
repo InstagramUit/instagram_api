@@ -93,7 +93,7 @@ export default class UserController {
         });
     } catch (error) {}
   }
-  async getInfoUser(req: Request, res: any, next: NextFunction) {
+  async getInfoCurrentUser(req: Request, res: any, next: NextFunction) {
     try {
       const { user } = req;
       const infoUser = await userModel.findUserById(user.id);
@@ -101,7 +101,7 @@ export default class UserController {
       console.log(followers);
       const followings = await followModel.findFollowing(user.id);
       const posts = await postModel.getPost(user.id);
-      
+
       return res.json({
         data: {
           ...infoUser,
@@ -111,6 +111,31 @@ export default class UserController {
         },
       });
     } catch (error) {
+      res.status(400).json({ message: "lay thong tin that bai." });
+    }
+  }
+  async getInfoAnotherUser(req: Request, res: any, next: NextFunction) {
+    try {
+      const { user } = req;
+      const user_id = Number(req.params.user_id);
+      console.log(user_id);
+
+      const infoUser = await userModel.findUserById(user_id);
+      const followers = await followModel.findFollower(user_id);
+      const followings = await followModel.findFollowing(user_id);
+      const posts = await postModel.getPost(user_id);
+
+      return res.json({
+        data: {
+          ...infoUser,
+          followers,
+          followings,
+          isFollow: followers.some((follower) => follower.user_id == user.id),
+          posts: posts.map((post) => ({ ...post, items: JSON.parse(post.items) })),
+        },
+      });
+    } catch (error) {
+      console.log(error);
       res.status(400).json({ message: "lay thong tin that bai." });
     }
   }
@@ -149,6 +174,17 @@ export default class UserController {
     } catch (error) {
       console.log(error);
       return res.status(400).json({ message: "follow khong thanh cong." });
+    }
+  }
+  async searchUser(req: Request, res: any, next: NextFunction) {
+    try {
+      const { user } = req;
+      const { name } = req.body;
+      let result = await userModel.findSimilarUser(name, user.id);
+      res.json({ data: result });
+    } catch (error) {
+      console.log(error);
+      return res.status(400).json({ message: "search khong thanh cong." });
     }
   }
 }

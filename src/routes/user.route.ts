@@ -17,13 +17,17 @@ class UserRoutes {
         this.router.route('/users')
             .put(verifyToken, this.userController.updateInfoUser);
         this.router.route('/users')
-            .get(verifyToken, this.userController.getInfoUser);
+            .get(verifyToken, this.userController.getInfoCurrentUser);
+        this.router.route('/users/another/:user_id')
+            .get(verifyToken, this.userController.getInfoAnotherUser);
         this.router.route('/users/forgot-password')
             .put(verifyToken, this.userController.forgotPassword);
         this.router.route('/users/auto-suggest')
             .get(verifyToken, this.userController.autoSuggest);
         this.router.route('/users/follow')
             .post(verifyToken, this.userController.createFollow);
+        this.router.route('/users/search')
+            .get(verifyToken, this.userController.searchUser);
 
 
     }

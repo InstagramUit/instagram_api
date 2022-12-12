@@ -60,4 +60,14 @@ export default class UserModel {
         return response;
       });
   }
+  findSimilarUser(name: string, current_user_id: number) {
+    return db("user")
+      .select("email", "avatar", "display_name", "id")
+      .whereNot("user.id", current_user_id)
+      .where("user.display_name", "like", `%${name}%`)
+      .then((response) => {
+        if (!response) return [];
+        return response;
+      });
+  }
 }

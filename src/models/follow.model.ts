@@ -19,7 +19,7 @@ export default class FollowModel {
     }
     findFollower(user_id: number) {
         return db('follow')
-            .select('display_name', 'avatar', 'user.id')
+            .select('display_name', 'avatar', 'user.id as user_id')
             .join('user', 'user.id', '=', 'id_user_following')
             .where('id_user_following', user_id)
             .then((response) => {
