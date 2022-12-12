@@ -33,7 +33,8 @@ export default class UserModel {
     return db("user")
       .insert(data)
       .then((response) => {
-        return response;
+        if(!response) return null
+        return response[0];
       });
   }
   updateInfoUser(user_id: number, data: object) {
