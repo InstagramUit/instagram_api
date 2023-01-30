@@ -11,7 +11,8 @@ export default class PostController {
             const { items, description } = req.body
             console.log(req.body);
             if (Array.isArray(items) || description.length == 0) {
-                return res.status(400).json({ message: 'thiếu thông tin.' })
+                res.status(400).json({ message: 'thiếu thông tin.' })
+                return;
             }
             let formatItems = []
             for (let item of items) {
