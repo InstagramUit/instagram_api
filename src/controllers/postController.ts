@@ -10,7 +10,7 @@ export default class PostController {
             const { user } = req
             const { items, description } = req.body
             console.log(req.body);
-            if (Array.isArray(items) || description == '') {
+            if (Array.isArray(items) || description.length == 0) {
                 return res.status(400).json({ message: 'thiếu thông tin.' })
             }
             let formatItems = []
