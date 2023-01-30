@@ -11,7 +11,7 @@ export default class PostController {
             const { items, description } = req.body
             console.log(req.body);
             if (Array.isArray(items) || description == '') {
-                res.status(400).json({ message: 'thiếu thông tin.' })
+                return res.status(400).json({ message: 'thiếu thông tin.' })
             }
             let formatItems = []
             for (let item of items) {
@@ -24,7 +24,7 @@ export default class PostController {
                 description: 'Niềm mơ ước của bao người ',
             }
             await postModel.createNewPost(data)
-            res.json({ message: 'success' })
+            return res.json({ message: 'success' })
         } catch (error) {
             console.log(error);
             next()
