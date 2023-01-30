@@ -17,3 +17,5 @@ câu lệnh sql : https://www.w3schools.com/mysql/mysql_drop_table.asp
 https://stackoverflow.com/questions/72586253/typescript-debug-failure-false-expression-non-string-value-passed-to-ts-reso
 
 Link doc api : https://app.gitbook.com/s/1CW6oaW68XzOI7pfyRhe/
+
+https://github.com/cloudinary/cloudinary_npm/issues/177
