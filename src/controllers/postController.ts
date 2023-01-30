@@ -15,13 +15,14 @@ export default class PostController {
                 return;
             }
             let formatItems = []
-            for (let item of items) {
-                formatItems.push(addItem(item.src, `/posts/${1}`, item.type))
-            }
-            let result = await Promise.all(formatItems)
+            await Promise.all(items.map(async(item,i)=>{
+               let urlSrc = await addItem(item.src, `/posts/${user.id}`, item.type)
+               console.log('processing src')
+               formatItems.push(urlSrc)
+            }))
             let data = {
                 id_user: user.id,
-                items: JSON.stringify(result),
+                items: JSON.stringify(formatItems),
                 description,
             }
             await postModel.createNewPost(data)
