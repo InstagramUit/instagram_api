@@ -23,7 +23,7 @@ export default class ChatController {
         Array.isArray(receiverUsers) && receiverUsers.length > 0
           ? receiverUsers.map((element) => element.id)
           : [];
-
+      console.log({id:user.id,senderUser,receiverUsers})
 
       const chatUsers = Object.assign(senderUser,receiverUsers)
 
