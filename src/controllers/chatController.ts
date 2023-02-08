@@ -24,9 +24,9 @@ export default class ChatController {
           ? receiverUsers.map((element) => element.id)
           : [];
 
-      console.log({ senderUser, receiverUsers });
+
       const chatUsers = Object.assign(senderUser,receiverUsers)
-      console.log(chatUsers)
+
       let infoChatUsers = []
       await Promise.all(
         chatUsers.map(async(user_id:any)=>{
@@ -42,7 +42,9 @@ export default class ChatController {
       );
       console.log(infoChatUsers)
       return res.json({data:infoChatUsers})
-    } catch (error) {}
+    } catch (error) {
+      next(error)
+    }
   }
   async createChat(req: Request, res: any, next: NextFunction) {
     try {
