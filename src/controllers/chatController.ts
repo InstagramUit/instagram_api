@@ -51,8 +51,8 @@ export default class ChatController {
       const { user } = req;
       const { id_user, content } = req.body;
       const data = {
-        to_id: user.id,
-        from_id: id_user,
+        from_id: user.id,
+        to_id: id_user,
         content,
       };
       const result = await createMessage(data);
