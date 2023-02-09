@@ -31,7 +31,7 @@ export default class ChatController {
       await Promise.all(
         chatUsers.map(async(user_id:any)=>{
           const infoUser = await userModel.findUserById(user_id)
-          const infoChat = await getMessages(user_id)
+          const infoChat = await getMessages(user_id,user.id)
           infoChatUsers.push({
             user:{
               ...infoUser
