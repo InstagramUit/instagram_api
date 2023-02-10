@@ -81,17 +81,34 @@ export default class UserController {
     try {
       const { user } = req;
       const { display_name, avatar } = req.body;
-      const linkURLAvatar = await addItem(avatar, `user/${user.id}`, "image");
+
+      let avatarURL = ''
+      let updateData = {}
+      if(avatar){
+        avatarURL = await addItem(avatar, `user/${user.id}`, "image") as string;
+        updateData={
+          ...updateData,
+          avatar:avatarURL
+        }
+      }
+      if(display_name){
+        updateData= {
+          ...updateData,
+          avatar:display_name
+        }
+      }
 
       userModel
-        .updateInfoUser(user.id, { display_name, avatar: linkURLAvatar })
+        .updateInfoUser(user.id, updateData)
         .then((res) => {
           return res.status(200).json({ mess: "success" });
         })
         .catch((err) => {
           return res.status(400).json({ err });
         });
-    } catch (error) {}
+    } catch (error) {
+      next(error)
+    }
   }
   async getInfoCurrentUser(req: Request, res: any, next: NextFunction) {
     try {
