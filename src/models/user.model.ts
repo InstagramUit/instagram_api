@@ -65,7 +65,7 @@ export default class UserModel {
     return db("user")
       .select("email", "avatar", "display_name", "id")
       .whereNot("user.id", current_user_id)
-      .where("user.display_name", "like", `%${name}%`)
+      .whereILike("user.display_name", `%${name}%`)
       .then((response) => {
         if (!response) return [];
         return response;
