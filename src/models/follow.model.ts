@@ -41,7 +41,7 @@ export default class FollowModel {
     }
     findPostsFollowing(user_id: number) {
         return db('follow')
-            .select('follow.id_user_following as id_user', 'avatar', 'display_name', 'description', 'items', 'post.id as id')
+            .select('follow.id_user_following as id_user', 'avatar', 'display_name', 'description', 'items', 'post.id as id','post.created_at')
             .where('follow.id_user', user_id)
             .join('post', 'follow.id_user_following', '=', 'post.id_user')
             .join('user', 'follow.id_user_following', '=', 'user.id')

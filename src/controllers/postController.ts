@@ -9,7 +9,7 @@ export default class PostController {
         try {
             const { user } = req
             const { items, description } = req.body
-            console.log(req.body);
+            console.log(1111,req.body);
             if (!Array.isArray(items) || description?.length == 0) {
                 res.status(400).json({ message: 'thiếu thông tin.' })
                 return;
