@@ -102,14 +102,32 @@ export default class UserController {
       const followings = await followModel.findFollowing(user.id);
       const posts = await postModel.getPost(user.id);
 
-      return res.json({
-        data: {
-          ...infoUser,
-          followers,
-          followings,
-          posts: posts.map((post) => ({ ...post, items: JSON.parse(post.items) })),
-        },
-      });
+      let formatPosts = []
+
+      for (let post of posts) {
+        let comments = await postModel.findComments(post.id)
+        let likes = await postModel.findLikes(post.id)
+        formatPosts.push({
+            ...post,
+            comments,
+            likes,
+            follow: true,
+            items: JSON.parse(post.items),
+            totalComments: comments.length,
+            totalLikes: likes.length,
+        })     
+        
+    }
+    let result = await Promise.all(formatPosts)
+
+    return res.json({
+      data: {
+        ...infoUser,
+        followers,
+        followings,
+        posts: result,
+      },
+    }); 
     } catch (error) {
       res.status(400).json({ message: "lay thong tin that bai." });
     }
@@ -125,15 +143,33 @@ export default class UserController {
       const followings = await followModel.findFollowing(user_id);
       const posts = await postModel.getPost(user_id);
 
-      return res.json({
-        data: {
-          ...infoUser,
-          followers,
-          followings,
-          isFollow: followers.some((follower) => follower.user_id == user.id),
-          posts: posts.map((post) => ({ ...post, items: JSON.parse(post.items) })),
-        },
-      });
+      let formatPosts = []
+
+      for (let post of posts) {
+        let comments = await postModel.findComments(post.id)
+        let likes = await postModel.findLikes(post.id)
+        formatPosts.push({
+            ...post,
+            comments,
+            likes,
+            follow: true,
+            items: JSON.parse(post.items),
+            totalComments: comments.length,
+            totalLikes: likes.length,
+        })     
+        
+    }
+    let result = await Promise.all(formatPosts)
+
+    return res.json({
+      data: {
+        ...infoUser,
+        followers,
+        followings,
+        isFollow: followers.some((follower) => follower.user_id == user.id),
+        posts: result,
+      },
+    }); 
     } catch (error) {
       console.log(error);
       res.status(400).json({ message: "lay thong tin that bai." });
@@ -180,9 +216,16 @@ export default class UserController {
     try {
       const { user } = req;
       const { name } = req.query;
-      console.log(name)
-      let result = await userModel.findSimilarUser(name as string, user.id);
-      res.json({ data: result });
+
+      let searchUsers:any = await userModel.findSimilarUser(name as string, user.id);
+      const listFollowing:[] = await followModel.findFollowing(user.id)
+
+      console.log({user,searchUsers,listFollowing})
+      searchUsers= searchUsers.map((searchUser:any,index)=>({
+        ...searchUser,
+        isFollowing:listFollowing.map((followingUser:any,index)=> followingUser.id).includes(searchUser.id)
+      }))
+      res.json({ data: searchUsers });
     } catch (error) {
       console.log(error);
       return res.status(400).json({ message: "search khong thanh cong." });

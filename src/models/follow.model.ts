@@ -20,8 +20,8 @@ export default class FollowModel {
     findFollower(user_id: number) {
         return db('follow')
             .select('display_name', 'avatar', 'user.id as user_id')
-            .join('user', 'user.id', '=', 'id_user_following')
-            .where('id_user_following', user_id)
+            .join('user', 'user.id', '=', 'follow.id_user')
+            .where('follow.id_user_following', user_id)
             .then((response) => {
                 if (!response)
                     return []
@@ -31,11 +31,9 @@ export default class FollowModel {
     findFollowing(user_id: number) {
         return db('follow')
             .select('display_name', 'avatar', 'user.id')
-            .join('user', 'user.id', '=', 'follow.id_user')
-            .where('id_user', user_id)
+            .join('user', 'user.id', '=', 'follow.id_user_following')
+            .where('follow.id_user', user_id)
             .then((response) => {
-                if (!response)
-                    return []
                 return response;
             });
     }
