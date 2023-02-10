@@ -82,13 +82,13 @@ export default class UserController {
       const { user } = req;
       const { display_name, avatar } = req.body;
 
-      let avatarURL = ''
+      let avatarURL:any =''
       let updateData = {}
       if(avatar){
         avatarURL = await addItem(avatar, `user/${user.id}`, "image") as string;
         updateData={
           ...updateData,
-          avatar:avatarURL
+          avatar:avatarURL?.src
         }
       }
       if(display_name){
