@@ -94,16 +94,18 @@ export default class UserController {
       if(display_name){
         updateData= {
           ...updateData,
-          avatar:display_name
+          display_name:display_name
         }
       }
+      console.log(updateData)
 
       userModel
         .updateInfoUser(user.id, updateData)
-        .then((res) => {
+        .then((response) => {
           return res.status(200).json({ mess: "success" });
         })
         .catch((err) => {
+          console.log(err)
           return res.status(400).json({ err });
         });
     } catch (error) {
