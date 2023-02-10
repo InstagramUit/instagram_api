@@ -48,7 +48,7 @@ class Server {
             .use(cors({ origin: true, credentials: true, exposedHeaders: ['Set-Cookie', 'Date', 'ETag'] }))
             .use(limiter)
             .use(express.json({ limit: '100mb' }))
-            .use(express.urlencoded({ limit: '100mb', extended: false }));
+            .use(express.urlencoded({ limit: '100mb', extended: true }));
     }
     public handleError(): void {
         this.app.use(function (req: Request, res: Response, next: NextFunction) {

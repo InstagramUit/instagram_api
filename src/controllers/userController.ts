@@ -179,8 +179,9 @@ export default class UserController {
   async searchUser(req: Request, res: any, next: NextFunction) {
     try {
       const { user } = req;
-      const { name } = req.body;
-      let result = await userModel.findSimilarUser(name, user.id);
+      const { name } = req.query;
+      console.log(name)
+      let result = await userModel.findSimilarUser(name as string, user.id);
       res.json({ data: result });
     } catch (error) {
       console.log(error);

@@ -8,9 +8,10 @@ cloudinary.config({
 });
 
 export function addItem(base64: string, path: string, type: 'image' | 'video') {
+    console.log({path})
     return new Promise((resolve) => {
         cloudinary.uploader
-            .upload(`data:image/jpeg;base64,${base64}`, {
+            .upload(`${base64}`, {
                 folder: path,
                 resource_type: type,
             })
