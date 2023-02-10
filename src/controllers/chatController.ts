@@ -5,6 +5,7 @@ import FollowModel from "../models/follow.model";
 import CommentModel from "../models/comment.model";
 import { createMessage, getMessages, getReceiverUsers, getSenderUsers } from "../models/chat.model";
 import UserModel from "../models/user.model";
+import { getInfoMessages } from "../services/chat.service";
 
 
 const userModel = new UserModel()
@@ -12,36 +13,8 @@ export default class ChatController {
   async getListChat(req: Request, res: any, next: NextFunction) {
     const { user } = req;
     try {
-      let senderUser: any = await getSenderUsers(user.id);
-      senderUser =
-        Array.isArray(senderUser) && senderUser.length > 0
-          ? senderUser.map((element) => element.id)
-          : [];
-
-      let receiverUsers: any = await getReceiverUsers(user.id);
-      receiverUsers =
-        Array.isArray(receiverUsers) && receiverUsers.length > 0
-          ? receiverUsers.map((element) => element.id)
-          : [];
-      console.log({id:user.id,senderUser,receiverUsers})
-
-      const chatUsers = Object.assign(senderUser,receiverUsers)
-
-      let infoChatUsers = []
-      await Promise.all(
-        chatUsers.map(async(user_id:any)=>{
-          const infoUser = await userModel.findUserById(user_id)
-          const infoChat = await getMessages(user_id,user.id)
-          infoChatUsers.push({
-            user:{
-              ...infoUser
-            },
-            message:infoChat
-          })
-        })
-      );
-      console.log(infoChatUsers)
-      return res.json({data:infoChatUsers})
+      let messages = await getInfoMessages(user.id)
+      return res.json({data:messages})
     } catch (error) {
       next(error)
     }

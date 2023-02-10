@@ -5,6 +5,8 @@ import PostModel from "../models/post.model";
 import argon2 from "argon2";
 import { Secret, sign, verify } from "jsonwebtoken";
 import { addItem } from "../services/cloudinary.service";
+import { getInfoMessages } from "../services/chat.service";
+import { getMessages } from "../models/chat.model";
 const userModel = new UserModel();
 const followModel = new FollowModel();
 const postModel = new PostModel();
@@ -82,22 +84,22 @@ export default class UserController {
       const { user } = req;
       const { display_name, avatar } = req.body;
 
-      let avatarURL:any =''
-      let updateData = {}
-      if(avatar){
-        avatarURL = await addItem(avatar, `user/${user.id}`, "image") as string;
-        updateData={
+      let avatarURL: any = "";
+      let updateData = {};
+      if (avatar) {
+        avatarURL = (await addItem(avatar, `user/${user.id}`, "image")) as string;
+        updateData = {
           ...updateData,
-          avatar:avatarURL?.src
-        }
+          avatar: avatarURL?.src,
+        };
       }
-      if(display_name){
-        updateData= {
+      if (display_name) {
+        updateData = {
           ...updateData,
-          display_name:display_name
-        }
+          display_name: display_name,
+        };
       }
-      console.log(updateData)
+      console.log(updateData);
 
       userModel
         .updateInfoUser(user.id, updateData)
@@ -105,11 +107,11 @@ export default class UserController {
           return res.status(200).json({ mess: "success" });
         })
         .catch((err) => {
-          console.log(err)
+          console.log(err);
           return res.status(400).json({ err });
         });
     } catch (error) {
-      next(error)
+      next(error);
     }
   }
   async getInfoCurrentUser(req: Request, res: any, next: NextFunction) {
@@ -121,32 +123,31 @@ export default class UserController {
       const followings = await followModel.findFollowing(user.id);
       const posts = await postModel.getPost(user.id);
 
-      let formatPosts = []
+      let formatPosts = [];
 
       for (let post of posts) {
-        let comments = await postModel.findComments(post.id)
-        let likes = await postModel.findLikes(post.id)
+        let comments = await postModel.findComments(post.id);
+        let likes = await postModel.findLikes(post.id);
         formatPosts.push({
-            ...post,
-            comments,
-            likes,
-            follow: true,
-            items: JSON.parse(post.items),
-            totalComments: comments.length,
-            totalLikes: likes.length,
-        })     
-        
-    }
-    let result = await Promise.all(formatPosts)
+          ...post,
+          comments,
+          likes,
+          follow: true,
+          items: JSON.parse(post.items),
+          totalComments: comments.length,
+          totalLikes: likes.length,
+        });
+      }
+      let result = await Promise.all(formatPosts);
 
-    return res.json({
-      data: {
-        ...infoUser,
-        followers,
-        followings,
-        posts: result,
-      },
-    }); 
+      return res.json({
+        data: {
+          ...infoUser,
+          followers,
+          followings,
+          posts: result,
+        },
+      });
     } catch (error) {
       res.status(400).json({ message: "lay thong tin that bai." });
     }
@@ -162,33 +163,32 @@ export default class UserController {
       const followings = await followModel.findFollowing(user_id);
       const posts = await postModel.getPost(user_id);
 
-      let formatPosts = []
+      let formatPosts = [];
 
       for (let post of posts) {
-        let comments = await postModel.findComments(post.id)
-        let likes = await postModel.findLikes(post.id)
+        let comments = await postModel.findComments(post.id);
+        let likes = await postModel.findLikes(post.id);
         formatPosts.push({
-            ...post,
-            comments,
-            likes,
-            follow: true,
-            items: JSON.parse(post.items),
-            totalComments: comments.length,
-            totalLikes: likes.length,
-        })     
-        
-    }
-    let result = await Promise.all(formatPosts)
+          ...post,
+          comments,
+          likes,
+          follow: true,
+          items: JSON.parse(post.items),
+          totalComments: comments.length,
+          totalLikes: likes.length,
+        });
+      }
+      let result = await Promise.all(formatPosts);
 
-    return res.json({
-      data: {
-        ...infoUser,
-        followers,
-        followings,
-        isFollow: followers.some((follower) => follower.user_id == user.id),
-        posts: result,
-      },
-    }); 
+      return res.json({
+        data: {
+          ...infoUser,
+          followers,
+          followings,
+          isFollow: followers.some((follower) => follower.user_id == user.id),
+          posts: result,
+        },
+      });
     } catch (error) {
       console.log(error);
       res.status(400).json({ message: "lay thong tin that bai." });
@@ -236,15 +236,31 @@ export default class UserController {
       const { user } = req;
       const { name } = req.query;
 
-      let searchUsers:any = await userModel.findSimilarUser(name as string, user.id);
-      const listFollowing:[] = await followModel.findFollowing(user.id)
+      let searchUsers: any = await userModel.findSimilarUser(name as string, user.id);
+      const listFollowing: [] = await followModel.findFollowing(user.id);
 
-      console.log({user,searchUsers,listFollowing})
-      searchUsers= searchUsers.map((searchUser:any,index)=>({
+      console.log({ user, searchUsers, listFollowing });
+      searchUsers = searchUsers.map((searchUser: any, index) => ({
         ...searchUser,
-        isFollowing:listFollowing.map((followingUser:any,index)=> followingUser.id).includes(searchUser.id)
-      }))
-      res.json({ data: searchUsers });
+        isFollowing: listFollowing
+          .map((followingUser: any, index) => followingUser.id)
+          .includes(searchUser.id),
+      }));
+
+      const suitableUsers = await Promise.all(
+        searchUsers.map(async (searchUser: any, index) => {
+          const messages =  await getMessages(searchUser.id,user.id)
+          return {
+            ...searchUser,
+            messages,
+            isFollowing: listFollowing
+              .map((followingUser: any, index) => followingUser.id)
+              .includes(searchUser.id),
+          };
+        })
+      );
+
+      res.json({ data: suitableUsers });
     } catch (error) {
       console.log(error);
       return res.status(400).json({ message: "search khong thanh cong." });
